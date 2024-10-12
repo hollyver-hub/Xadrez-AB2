@@ -1,4 +1,6 @@
 import pygame
+from pygame import MOUSEBUTTONDOWN
+
 from movimentacao_pecas.check_movimentos import check_opcoes_movimento
 
 # Inicialização
@@ -6,7 +8,6 @@ from movimentacao_pecas.check_movimentos import check_opcoes_movimento
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
-
 from assets import *
 
 # Função que desenha o tabuleiro
@@ -83,89 +84,146 @@ def desenha_cheque():
 def desenha_game_over():
     pygame.draw.rect(screen, 'black', [200, 200, 400, 50])
 
+# Carregando textos
+
+modo1_text = fonte_negrito.render('Player vs Player', True, (255, 255, 255), (20, 20, 20))
+modo1_text_rect = modo1_text.get_rect()
+modo1_text_rect.center = (width // 2, height - 300)
+
+modo2_text = fonte_negrito.render('Player vs IA(desenvolvimento)', True, (255, 255, 255), (20, 20, 20))
+modo2_text_rect = modo2_text.get_rect()
+modo2_text_rect.center = (width // 2, height - 200)
+
+
+#Função de escolher o modo de jogo
+
+modo = 0
+while modo == 0:
+    screen.fill((0, 0, 0))
+
+    mouse_pos = pygame.mouse.get_pos()
+
+    if modo1_text_rect.collidepoint(mouse_pos):
+        modo1_text = fonte_negrito_grande.render('Player vs Player', True, (255, 255, 255), (20, 20, 20))
+        modo1_text_rect = modo1_text.get_rect()
+        modo1_text_rect.center = (width // 2, height - 300)
+    else:
+        modo1_text = fonte_negrito.render('Player vs Player', True, (255, 255, 255), (20, 20, 20))
+        modo1_text_rect = modo1_text.get_rect()
+        modo1_text_rect.center = (width // 2, height - 300)
+
+    if modo2_text_rect.collidepoint(mouse_pos):
+        modo2_text = fonte_negrito_grande.render('Player vs IA(desenvolvimento)', True, (255, 255, 255), (20, 20, 20))
+        modo2_text_rect = modo2_text.get_rect()
+        modo2_text_rect.center = (width // 2, height - 200)
+    else:
+        modo2_text = fonte_negrito.render('Player vs IA(desenvolvimento)', True, (255, 255, 255), (20, 20, 20))
+        modo2_text_rect = modo2_text.get_rect()
+        modo2_text_rect.center = (width // 2, height - 200)
+
+    screen.blit(modo1_text, modo1_text_rect)
+    screen.blit(modo2_text, modo2_text_rect)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        if event.type == MOUSEBUTTONDOWN:
+            if modo1_text_rect.collidepoint(mouse_pos):
+                modo = 1
+            if modo2_text_rect.collidepoint(mouse_pos):
+                modo = 2
+
+        pygame.display.update()
 
 pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
 brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
 jogando = True
-while jogando:
-    timer.tick(60)
-    if counter < 30:
-        counter += 1
-    else:
-        counter = 0
-    screen.fill('dark gray')
-    desenha_tabuleiro()
-    coloca_pecas()
-    desenha_cheque()
-    if selecionado != 50:
-        movimentos_validos = check_movimentos_validos()
-        desenha_validos(movimentos_validos)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            jogando = False
-        # Pega as coordenadas do click.
-        if turno == 0:
-            pygame.display.set_caption('Turno das Peças Brancas')
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            x_coordenada = event.pos[0] // 60
-            y_coordenada = event.pos[1] // 60
-            click_coordenada = (x_coordenada, y_coordenada)
-            # Turno do branco.
-            if turno <= 1:
-                # Verifica se o click foi em alguma peça branca, se foi checa os movimentos válidos.
-                if click_coordenada in brancas_posicao:
-                    selecionado = brancas_posicao.index(click_coordenada)
-                    movimentos_validos = check_movimentos_validos()
-                    if turno == 0:
-                        turno = 1
-                # Se houver uma peça selecionada, e o click estiver na lista de movimentos válidos, coloca a peça na posição desejada.
-                if click_coordenada in movimentos_validos and selecionado != 50:
-                    brancas_posicao[selecionado] = click_coordenada
-                    if click_coordenada not in pretas_posicao:
-                        som_movimento.play()
-                    #Se o movimento for válido e o click for em cima de uma peça inimiga, "come" ela.
-                    if click_coordenada in pretas_posicao:
-                        peca_preta = pretas_posicao.index(click_coordenada)
-                        pecas_capturadas_branco.append(pecas_pretas[peca_preta])
-                        som_eliminado.play()
-                        pecas_pretas.pop(peca_preta)
-                        pretas_posicao.pop(peca_preta)
-                        if pecas_pretas[peca_preta] == 'rei':
-                            desenha_game_over()
-                    # Atualiza as opções de jogadas de ambos os times e inicia o turno do preto.
-                    pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
-                    brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
-                    turno = 2
-                    selecionado = 50
-                    movimentos_validos = []
 
-            if turno > 1:
-                pygame.display.set_caption('Turno das Peças Pretas')
+# Player vs Player
 
-                if click_coordenada in pretas_posicao:
-                    selecionado = pretas_posicao.index(click_coordenada)
-                    movimentos_validos = check_movimentos_validos()
-                    if turno == 2:
-                        turno = 3
-                if click_coordenada in movimentos_validos and selecionado != 50:
-                    pretas_posicao[selecionado] = click_coordenada
-                    if click_coordenada not in brancas_posicao:
-                        som_movimento.play()
+if modo == 1:
+
+    while jogando:
+        timer.tick(60)
+        if counter < 30:
+            counter += 1
+        else:
+            counter = 0
+        screen.fill('dark gray')
+        desenha_tabuleiro()
+        coloca_pecas()
+        desenha_cheque()
+        if selecionado != 50:
+            movimentos_validos = check_movimentos_validos()
+            desenha_validos(movimentos_validos)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                jogando = False
+            # Pega as coordenadas do click.
+            if turno == 0:
+                pygame.display.set_caption('Turno das Peças Brancas')
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x_coordenada = event.pos[0] // 60
+                y_coordenada = event.pos[1] // 60
+                click_coordenada = (x_coordenada, y_coordenada)
+                # Turno do branco.
+                if turno <= 1:
+                    # Verifica se o click foi em alguma peça branca, se foi checa os movimentos válidos.
                     if click_coordenada in brancas_posicao:
-                        peca_branca = brancas_posicao.index(click_coordenada)
-                        pecas_capturadas_preto.append(pecas_brancas[peca_branca])
-                        som_eliminado.play()
-                        if pecas_brancas[peca_branca] == 'rei':
-                            pygame.quit()
-                        pecas_brancas.pop(peca_branca)
-                        brancas_posicao.pop(peca_branca)
+                        selecionado = brancas_posicao.index(click_coordenada)
+                        movimentos_validos = check_movimentos_validos()
+                        if turno == 0:
+                            turno = 1
+                    # Se houver uma peça selecionada, e o click estiver na lista de movimentos válidos, coloca a peça na posição desejada.
+                    if click_coordenada in movimentos_validos and selecionado != 50:
+                        brancas_posicao[selecionado] = click_coordenada
+                        if click_coordenada not in pretas_posicao:
+                            som_movimento.play()
+                        #Se o movimento for válido e o click for em cima de uma peça inimiga, "come" ela.
+                        if click_coordenada in pretas_posicao:
+                            peca_preta = pretas_posicao.index(click_coordenada)
+                            pecas_capturadas_branco.append(pecas_pretas[peca_preta])
+                            som_eliminado.play()
+                            pecas_pretas.pop(peca_preta)
+                            pretas_posicao.pop(peca_preta)
+                            if pecas_pretas[peca_preta] == 'rei':
+                                desenha_game_over()
+                        # Atualiza as opções de jogadas de ambos os times e inicia o turno do preto.
+                        pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
+                        brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
+                        turno = 2
+                        selecionado = 50
+                        movimentos_validos = []
 
-                    pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
-                    brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
-                    turno = 0
+                if turno > 1:
+                    pygame.display.set_caption('Turno das Peças Pretas')
 
-                    selecionado = 50
-                    movimentos_validos = []
-    pygame.display.update()
+                    if click_coordenada in pretas_posicao:
+                        selecionado = pretas_posicao.index(click_coordenada)
+                        movimentos_validos = check_movimentos_validos()
+                        if turno == 2:
+                            turno = 3
+                    if click_coordenada in movimentos_validos and selecionado != 50:
+                        pretas_posicao[selecionado] = click_coordenada
+                        if click_coordenada not in brancas_posicao:
+                            som_movimento.play()
+                        if click_coordenada in brancas_posicao:
+                            peca_branca = brancas_posicao.index(click_coordenada)
+                            pecas_capturadas_preto.append(pecas_brancas[peca_branca])
+                            som_eliminado.play()
+                            if pecas_brancas[peca_branca] == 'rei':
+                                pygame.quit()
+                            pecas_brancas.pop(peca_branca)
+                            brancas_posicao.pop(peca_branca)
+
+                        pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
+                        brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
+                        turno = 0
+
+                        selecionado = 50
+                        movimentos_validos = []
+        pygame.display.update()
 
 pygame.quit()
+quit()
