@@ -4,6 +4,9 @@ from movimentacao_pecas.check_movimentos import check_opcoes_movimento
 # Inicialização
 
 pygame.init()
+pygame.mixer.init()
+pygame.font.init()
+
 from assets import *
 
 # Função que desenha o tabuleiro
@@ -57,23 +60,22 @@ def desenha_validos(movimentos):
 
 
 def desenha_cheque():
-    if turno < 2:
-        if 'rei' in pecas_brancas:
 
-            rei_index = pecas_brancas.index('rei')
-            rei_posicao = brancas_posicao[rei_index]
-            for i in range(len(pretas_posicao)):
-                movimentos_inimigo = check_opcoes_movimento([pecas_pretas[i]], [pretas_posicao[i]], 'pretos', brancas_posicao, pretas_posicao)[0]
-                if rei_posicao in movimentos_inimigo:
+    if 'rei' in pecas_brancas:
+        rei_index = pecas_brancas.index('rei')
+        rei_posicao = brancas_posicao[rei_index]
+        for i in range(len(pretas_posicao)):
+            movimentos_inimigo = check_opcoes_movimento([pecas_pretas[i]], [pretas_posicao[i]], 'pretos', brancas_posicao, pretas_posicao)[0]
+            if rei_posicao in movimentos_inimigo:
                     if counter < 15:
                         pygame.draw.rect(screen, 'dark red', [rei_posicao[0] * 60, rei_posicao[1] * 60, 60, 60], 5)
-    else:
-        if 'rei' in pecas_pretas:
-            rei_index = pecas_pretas.index('rei')
-            rei_posicao = pretas_posicao[rei_index]
-            for i in range(len(brancas_posicao)):
-                movimentos_inimigo = check_opcoes_movimento([pecas_brancas[i]], [brancas_posicao[i]], 'brancos', brancas_posicao, pretas_posicao)[0]
-                if rei_posicao in movimentos_inimigo:
+
+    if 'rei' in pecas_pretas:
+        rei_index = pecas_pretas.index('rei')
+        rei_posicao = pretas_posicao[rei_index]
+        for i in range(len(brancas_posicao)):
+            movimentos_inimigo = check_opcoes_movimento([pecas_brancas[i]], [brancas_posicao[i]], 'brancos', brancas_posicao, pretas_posicao)[0]
+            if rei_posicao in movimentos_inimigo:
                     if counter < 15:
                         pygame.draw.rect(screen, 'dark red', [rei_posicao[0] * 60, rei_posicao[1] * 60, 60, 60], 5)
 
@@ -102,6 +104,8 @@ while jogando:
         if event.type == pygame.QUIT:
             jogando = False
         # Pega as coordenadas do click.
+        if turno == 0:
+            pygame.display.set_caption('Turno das Peças Brancas')
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             x_coordenada = event.pos[0] // 60
             y_coordenada = event.pos[1] // 60
@@ -117,14 +121,17 @@ while jogando:
                 # Se houver uma peça selecionada, e o click estiver na lista de movimentos válidos, coloca a peça na posição desejada.
                 if click_coordenada in movimentos_validos and selecionado != 50:
                     brancas_posicao[selecionado] = click_coordenada
+                    if click_coordenada not in pretas_posicao:
+                        som_movimento.play()
                     #Se o movimento for válido e o click for em cima de uma peça inimiga, "come" ela.
                     if click_coordenada in pretas_posicao:
                         peca_preta = pretas_posicao.index(click_coordenada)
                         pecas_capturadas_branco.append(pecas_pretas[peca_preta])
-                        if pecas_pretas[peca_preta] == 'rei':
-                            pygame.quit()
+                        som_eliminado.play()
                         pecas_pretas.pop(peca_preta)
                         pretas_posicao.pop(peca_preta)
+                        if pecas_pretas[peca_preta] == 'rei':
+                            desenha_game_over()
                     # Atualiza as opções de jogadas de ambos os times e inicia o turno do preto.
                     pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao, pretas_posicao)
                     brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos', brancas_posicao, pretas_posicao)
@@ -133,6 +140,7 @@ while jogando:
                     movimentos_validos = []
 
             if turno > 1:
+                pygame.display.set_caption('Turno das Peças Pretas')
 
                 if click_coordenada in pretas_posicao:
                     selecionado = pretas_posicao.index(click_coordenada)
@@ -141,9 +149,12 @@ while jogando:
                         turno = 3
                 if click_coordenada in movimentos_validos and selecionado != 50:
                     pretas_posicao[selecionado] = click_coordenada
+                    if click_coordenada not in brancas_posicao:
+                        som_movimento.play()
                     if click_coordenada in brancas_posicao:
                         peca_branca = brancas_posicao.index(click_coordenada)
                         pecas_capturadas_preto.append(pecas_brancas[peca_branca])
+                        som_eliminado.play()
                         if pecas_brancas[peca_branca] == 'rei':
                             pygame.quit()
                         pecas_brancas.pop(peca_branca)
