@@ -1,7 +1,12 @@
 import pygame
 pygame.init()
+pygame.mixer.init()
+pygame.font.init()
 
-screen = pygame.display.set_mode((480, 480))
+
+width = 480
+height = 480
+screen = pygame.display.set_mode((width, height))
 timer = pygame.time.Clock()
 turno = 0
 counter = 0
@@ -78,3 +83,14 @@ brancas_posicao = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7
                    (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
 
 todas_pecas = ['torre', 'cavalo', 'bispo', 'rainha', 'rei', 'peao']
+
+
+#Sons
+
+som_movimento = pygame.mixer.Sound("./audios/moviment_sound.mp3")
+som_eliminado = pygame.mixer.Sound("./audios/moviment_eliminate.mp3")
+
+#Fontes
+
+fonte_normal = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
+fonte_negrito = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
