@@ -1,4 +1,5 @@
 import pygame
+
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
@@ -95,3 +96,8 @@ som_eliminado = pygame.mixer.Sound("./audios/moviment_eliminate.mp3")
 fonte_normal = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
 fonte_negrito = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
 fonte_negrito_grande = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 23)
+
+#Inicializando
+
+pretas_en_passant = (100, 100)
+brancas_en_passant = (100, 100)
