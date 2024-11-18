@@ -43,7 +43,11 @@ peao_branco = pygame.transform.scale(peao_branco, (width_pecas, height_pecas))
 
 imagens_pecas_brancas = [torre_branca, cavalo_branco, bispo_branco, rainha_branca, rei_branco, peao_branco]
 
+brancas_promocoes = ['bispo', 'cavalo', 'torre', 'rainha']
+
 pecas_capturadas_branco = []
+pecas_movidas_branco = [False, False, False, False, False, False, False, False,
+                        False, False, False, False, False, False, False, False,]
 
 # Peças pretas:
 
@@ -66,8 +70,11 @@ peao_preto = pygame.image.load('images/pawn-b.svg')
 peao_preto = pygame.transform.scale(peao_preto, (width_pecas, height_pecas))
 
 imagens_pecas_pretas = [torre_preta, cavalo_preto, bispo_preto, rainha_preto, rei_preto, peao_preto]
+pretas_promocoes = ['bispo', 'cavalo', 'torre', 'rainha']
 
 pecas_capturadas_preto = []
+pecas_movidas_preto = [False, False, False, False, False, False, False, False,
+                        False, False, False, False, False, False, False, False,]
 
 # Posicionamento das peças no tabuleiro
 
@@ -97,7 +104,76 @@ fonte_normal = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
 fonte_negrito = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
 fonte_negrito_grande = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 23)
 
+doto_extra_bold = pygame.font.Font("./fonts/Doto/Doto-ExtraBold.ttf", 50)
+doto_regular = pygame.font.Font("./fonts/Doto/Doto-Regular.ttf", 25)
+doto_regular_big = pygame.font.Font("./fonts/Doto/Doto-Regular.ttf", 30)
+
+#Textos
+
+title = doto_extra_bold.render('Chess Game AB2', True, (255, 255, 255), (0, 0, 0))
+title_rect = title.get_rect()
+title_rect.center = (width // 2, 100)
+
+#Player vs Player
+
+modo1 = doto_regular.render("Player vs Player", True, (255, 255, 255), (0, 0, 0))
+modo1_rect = modo1.get_rect()
+modo1_rect.center = (width // 2, 250)
+
+modo1_big = doto_regular_big.render("Player vs Player", True, (255, 255, 255), (0, 0, 0))
+modo1_big_rect = modo1_big.get_rect()
+modo1_big_rect.center = (width // 2, 250)
+
+#IA
+
+modo2 = doto_regular.render("Player vs IA", True, (255, 255, 255), (0, 0, 0))
+modo2_rect = modo2.get_rect()
+modo2_rect.center = (width // 2, 300)
+
+modo2_big = doto_regular_big.render("Player vs IA", True, (255, 255, 255), (0, 0, 0))
+modo2_big_rect = modo2_big.get_rect()
+modo2_big_rect.center = (width // 2, 300)
+
+#Creditos
+
+credits = doto_regular.render("Créditos", True, (255, 255, 255), (0, 0, 0))
+credits_rect = credits.get_rect()
+credits_rect.center = (width // 2, 400)
+
+credits_big = doto_regular_big.render("Créditos", True, (255, 255, 255), (0, 0, 0))
+credits_big_rect = credits_big.get_rect()
+credits_big_rect.center = (width // 2, 400)
+
+#Promoção
+
+promocao_text_branco = fonte_negrito.render('Promoção de Peão', True, (255, 255, 255), (0, 0, 0))
+promocao_text_rect_branco = promocao_text_branco.get_rect()
+promocao_text_rect_branco.center = (width // 2, 205)
+
+promocao_text_preto = fonte_negrito.render('Promoção de Peão', True, (0, 0, 0), (255, 255, 255))
+promocao_text_rect_preto = promocao_text_preto.get_rect()
+promocao_text_rect_preto.center = (width // 2, 205)
+
+game_over_title_text = fonte_negrito_grande.render('Deseja jogar novamente?', True, (255, 255, 255), (0, 0, 0))
+game_over_title_text_rect = game_over_title_text.get_rect()
+game_over_title_text_rect.center = (width // 2, height - 400)
+
+restart_button = fonte_negrito.render("Restart", True, (255, 255, 255), (0, 0, 0))
+restart_button_rect = restart_button.get_rect()
+restart_button_rect.center = (width // 2, height - 205)
+
+restart_button_grande = fonte_negrito_grande.render("Restart", True, (255, 255, 255), (0, 0, 0))
+restart_button_rect_grande = restart_button_grande.get_rect()
+restart_button_rect_grande.center = (width // 2, height - 205)
+
 #Inicializando
 
 pretas_en_passant = (100, 100)
 brancas_en_passant = (100, 100)
+brancas_promocao = False
+pretas_promocao = False
+promocao_index = 50
+movimentos_castling = []
+cheque = False
+credits_bool = False
+vencedor = 'null'
