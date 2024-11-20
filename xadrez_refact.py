@@ -101,7 +101,8 @@ def desenha_promocao():
             screen.blit(promocao_text_preto, promocao_text_rect_preto)
 
 def desenha_credits():
-    screen.fill('dark red')
+    screen.fill('black')
+
 
 #Movimentação
 
@@ -472,8 +473,8 @@ def check_selecao_promocao():
 
 modo = 0
 while modo == 0:
+    credits_bool = False
     screen.fill((0, 0, 0))
-
     mouse_pos = pygame.mouse.get_pos()
     screen.blit(title, title_rect)
 
@@ -490,11 +491,9 @@ while modo == 0:
     else:
         screen.blit(modo2, modo2_rect)
 
-    if credits_rect.collidepoint(mouse_pos):
-        screen.blit(credits_big, credits_big_rect)
-    else:
-        screen.blit(credits, credits_rect)
-
+    screen.blit(credits, credits_rect)
+    screen.blit(credits_names, credits_names_rect)
+    screen.blit(credits_names2, credits_names2_rect)
 
 
     for event in pygame.event.get():
@@ -506,14 +505,6 @@ while modo == 0:
                 modo = 1
             if modo2_rect.collidepoint(mouse_pos):
                 modo = 2
-            if credits_rect.collidepoint(mouse_pos):
-                credits_bool = True
-                while credits_bool:
-                    desenha_credits()
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            pygame.quit()
-                            quit()
 
 
 
@@ -706,42 +697,61 @@ while jogando:
                 if modo == 2:
                     if turno > 1:
                         pygame.display.set_caption('IA Pensando...')
-                        while True:
-                            selecionado = random.choice(range(len(pretas_posicao)))
-                            movimentos_validos = check_movimentos_validos_ia(pecas_pretas[selecionado],
-                                                                             pretas_posicao[selecionado])
-                            if movimentos_validos:
-                                break
+                        movimento_feito = False  # Flag para controlar o loop
 
-                        try:
-                            movimento = random.choice(movimentos_validos[0])
-                            if pecas_movidas_branco[selecionado] == False:
-                                pecas_movidas_branco[selecionado] = True
-                            pretas_posicao[selecionado] = movimento
-                            som_movimento.play()
-                            for posicao in brancas_posicao:
-                                if movimento == posicao:
-                                    peca_branca = brancas_posicao.index(posicao)
+                        while not movimento_feito:
+                            # Seleciona uma peça preta aleatória
+                            selecionado = random.choice(range(len(pretas_posicao)))
+                            movimentos_validos = check_movimentos_validos_ia(
+                                pecas_pretas[selecionado], pretas_posicao[selecionado]
+                            )
+
+                            if movimentos_validos and movimentos_validos[0]:  # Verifica se há movimentos válidos
+                                # Verifica se pode capturar uma peça branca
+                                captura_feita = False
+                                for posicao in movimentos_validos[0]:
+                                    if posicao in brancas_posicao:
+                                        movimento = posicao
+                                        captura_feita = True
+                                        break
+
+                                # Se nenhuma peça puder ser capturada, escolhe um movimento aleatório
+                                if not captura_feita:
+                                    movimento = random.choice(
+                                        movimentos_validos[0])  # Escolhe aleatoriamente um movimento válido
+
+                                # Move a peça preta
+                                pretas_posicao[selecionado] = movimento
+                                som_movimento.play()
+
+                                # Verifica se capturou uma peça branca
+                                if movimento in brancas_posicao:
+                                    peca_branca = brancas_posicao.index(movimento)
                                     pecas_capturadas_preto.append(pecas_brancas[peca_branca])
                                     som_eliminado.play()
+
+                                    # Remove a peça branca capturada
                                     pecas_brancas.pop(peca_branca)
                                     pecas_movidas_branco.pop(peca_branca)
                                     brancas_posicao.pop(peca_branca)
+
+                                    # Verifica se o rei foi capturado
                                     if 'rei' in pecas_capturadas_preto:
                                         game_over = True
                                         vencedor = 'IA'
 
+                                # Finaliza o turno
+                                brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos',
+                                                                        brancas_posicao, pretas_posicao)
                                 turno = 0
                                 selecionado = 50
                                 movimentos_validos = []
+                                movimento_feito = True
 
-                                pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos',
-                                                                       brancas_posicao, pretas_posicao)
-                                brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos',
-                                                                        brancas_posicao, pretas_posicao)
 
-                        except IndexError:
-                            pass;
+                            else:
+                                # Se não houver movimentos válidos, tenta novamente
+                                continue
     else:
         desenha_game_over()
         pygame.display.set_caption(f'O {vencedor} ganhou!!')
