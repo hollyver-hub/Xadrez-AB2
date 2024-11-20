@@ -105,8 +105,10 @@ fonte_negrito = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 20)
 fonte_negrito_grande = pygame.font.Font("./fonts/Ubuntu-Regular.ttf", 23)
 
 doto_extra_bold = pygame.font.Font("./fonts/Doto/Doto-ExtraBold.ttf", 50)
+doto_extra_bold_minor_credit = pygame.font.Font("./fonts/Doto/Doto-ExtraBold.ttf", 30)
 doto_regular = pygame.font.Font("./fonts/Doto/Doto-Regular.ttf", 25)
 doto_regular_big = pygame.font.Font("./fonts/Doto/Doto-Regular.ttf", 30)
+doto_light = pygame.font.Font("./fonts/Doto/Doto-Light.ttf", 20)
 
 #Textos
 
@@ -118,31 +120,35 @@ title_rect.center = (width // 2, 100)
 
 modo1 = doto_regular.render("Player vs Player", True, (255, 255, 255), (0, 0, 0))
 modo1_rect = modo1.get_rect()
-modo1_rect.center = (width // 2, 250)
+modo1_rect.center = (width // 2, 200)
 
 modo1_big = doto_regular_big.render("Player vs Player", True, (255, 255, 255), (0, 0, 0))
 modo1_big_rect = modo1_big.get_rect()
-modo1_big_rect.center = (width // 2, 250)
+modo1_big_rect.center = (width // 2, 200)
 
 #IA
 
 modo2 = doto_regular.render("Player vs IA", True, (255, 255, 255), (0, 0, 0))
 modo2_rect = modo2.get_rect()
-modo2_rect.center = (width // 2, 300)
+modo2_rect.center = (width // 2, 250)
 
 modo2_big = doto_regular_big.render("Player vs IA", True, (255, 255, 255), (0, 0, 0))
 modo2_big_rect = modo2_big.get_rect()
-modo2_big_rect.center = (width // 2, 300)
+modo2_big_rect.center = (width // 2, 250)
 
 #Creditos
 
-credits = doto_regular.render("Créditos", True, (255, 255, 255), (0, 0, 0))
+credits = doto_light.render("-----------------------Créditos-----------------------", True, (255, 255, 255), (0, 0, 0))
 credits_rect = credits.get_rect()
-credits_rect.center = (width // 2, 400)
+credits_rect.center = (width // 2, 390)
 
-credits_big = doto_regular_big.render("Créditos", True, (255, 255, 255), (0, 0, 0))
-credits_big_rect = credits_big.get_rect()
-credits_big_rect.center = (width // 2, 400)
+credits_names = doto_light.render("Bruno Hollyver, Jéssica, Sophia,", True, (255, 255, 255), (0, 0, 0))
+credits_names_rect = credits_names.get_rect()
+credits_names_rect.center = (width // 2, 420)
+
+credits_names2 = doto_light.render("Gabriel Fideles, Lucas Raphael", True, (255, 255, 255), (0, 0, 0))
+credits_names2_rect = credits_names2.get_rect()
+credits_names2_rect.center = (width // 2, 450)
 
 #Promoção
 
@@ -154,15 +160,17 @@ promocao_text_preto = fonte_negrito.render('Promoção de Peão', True, (0, 0, 0
 promocao_text_rect_preto = promocao_text_preto.get_rect()
 promocao_text_rect_preto.center = (width // 2, 205)
 
-game_over_title_text = fonte_negrito_grande.render('Deseja jogar novamente?', True, (255, 255, 255), (0, 0, 0))
-game_over_title_text_rect = game_over_title_text.get_rect()
-game_over_title_text_rect.center = (width // 2, height - 400)
+#Tela de restart
 
-restart_button = fonte_negrito.render("Restart", True, (255, 255, 255), (0, 0, 0))
+game_over_title_text = doto_extra_bold_minor_credit.render('Deseja jogar novamente?', True, (255, 255, 255), (0, 0, 0))
+game_over_title_text_rect = game_over_title_text.get_rect()
+game_over_title_text_rect.center = (width // 2, height - 300)
+
+restart_button = doto_regular.render("Restart", True, (255, 255, 255), (0, 0, 0))
 restart_button_rect = restart_button.get_rect()
 restart_button_rect.center = (width // 2, height - 205)
 
-restart_button_grande = fonte_negrito_grande.render("Restart", True, (255, 255, 255), (0, 0, 0))
+restart_button_grande = doto_regular_big.render("Restart", True, (255, 255, 255), (0, 0, 0))
 restart_button_rect_grande = restart_button_grande.get_rect()
 restart_button_rect_grande.center = (width // 2, height - 205)
 
@@ -175,5 +183,4 @@ pretas_promocao = False
 promocao_index = 50
 movimentos_castling = []
 cheque = False
-credits_bool = False
 vencedor = 'null'
