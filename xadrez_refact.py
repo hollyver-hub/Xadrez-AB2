@@ -48,8 +48,9 @@ def desenha_validos(movimentos):
         pygame.draw.circle(screen, 'red', (movimentos[i][0] * 60 + 30, movimentos[i][1] * 60 + 30), 5)
 
 def desenha_cheque():
-    global cheque
-    cheque = False
+    global cheque_branco, cheque_preto
+    cheque_branco = False
+    cheque_preto = False
 
     if 'rei' in pecas_brancas:
         rei_index = pecas_brancas.index('rei')
@@ -57,7 +58,7 @@ def desenha_cheque():
         for i in range(len(pretas_posicao)):
             movimentos_inimigo = check_opcoes_movimento([pecas_pretas[i]], [pretas_posicao[i]], 'pretos', brancas_posicao, pretas_posicao)[0]
             if rei_posicao in movimentos_inimigo:
-                cheque = True
+                cheque_branco = True
                 if counter < 15:
                     pygame.draw.rect(screen, 'dark red', [rei_posicao[0] * 60, rei_posicao[1] * 60, 60, 60], 5)
 
@@ -67,7 +68,7 @@ def desenha_cheque():
         for i in range(len(brancas_posicao)):
             movimentos_inimigo = check_opcoes_movimento([pecas_brancas[i]], [brancas_posicao[i]], 'brancos', brancas_posicao, pretas_posicao)[0]
             if rei_posicao in movimentos_inimigo:
-                cheque = True
+                cheque_preto = True
                 if counter < 15:
                         pygame.draw.rect(screen, 'dark red', [rei_posicao[0] * 60, rei_posicao[1] * 60, 60, 60], 5)
 
@@ -382,7 +383,7 @@ def check_castling():
                 index_rei = i
                 localizacao_rei = brancas_posicao[i]
 
-        if not pecas_movidas_branco[index_rei] and False in indexes_torre and not cheque:
+        if not pecas_movidas_branco[index_rei] and False in indexes_torre and not cheque_branco:
             for i in range(len(indexes_torre)):
                 castle = True
                 if localizacao_torre[i][0] > localizacao_rei[0]:
@@ -409,7 +410,7 @@ def check_castling():
                 index_rei = i
                 localizacao_rei = pretas_posicao[i]
 
-        if not pecas_movidas_preto[index_rei] and False in indexes_torre and not cheque:
+        if not pecas_movidas_preto[index_rei] and False in indexes_torre and not cheque_preto:
             for i in range(len(indexes_torre)):
                 castle = True
                 if localizacao_torre[i][0] > localizacao_rei[0]:
@@ -697,61 +698,107 @@ while jogando:
                 if modo == 2:
                     if turno > 1:
                         pygame.display.set_caption('IA Pensando...')
-                        movimento_feito = False  # Flag para controlar o loop
+                        movimento_feito = False
+                        desenha_cheque()
 
                         while not movimento_feito:
-                            # Seleciona uma peça preta aleatória
-                            selecionado = random.choice(range(len(pretas_posicao)))
-                            movimentos_validos = check_movimentos_validos_ia(
-                                pecas_pretas[selecionado], pretas_posicao[selecionado]
-                            )
+                            if cheque_preto:
+                                rei_posicao = pretas_posicao[pecas_pretas.index('rei')]
+                                movimentos_validos_rei = check_movimentos_validos_ia('rei', rei_posicao)
 
-                            if movimentos_validos and movimentos_validos[0]:  # Verifica se há movimentos válidos
-                                # Verifica se pode capturar uma peça branca
-                                captura_feita = False
-                                for posicao in movimentos_validos[0]:
-                                    if posicao in brancas_posicao:
-                                        movimento = posicao
-                                        captura_feita = True
-                                        break
+                                if movimentos_validos_rei and movimentos_validos_rei[0]:
+                                    movimento = None
 
-                                # Se nenhuma peça puder ser capturada, escolhe um movimento aleatório
-                                if not captura_feita:
-                                    movimento = random.choice(
-                                        movimentos_validos[0])  # Escolhe aleatoriamente um movimento válido
+                                    for move in movimentos_validos_rei[0]:
+                                        pretas_posicao[pecas_pretas.index('rei')] = move
+                                        if not cheque_preto:
+                                            movimento = move
+                                            break
+                                        if move in brancas_posicao and abs(move[0] - rei_posicao[0]) <= 1 and abs(
+                                                move[1] - rei_posicao[1]) <= 1:
+                                            movimento = move
+                                            peca_branca = brancas_posicao.index(move)
+                                            pecas_capturadas_preto.append(pecas_brancas[peca_branca])
+                                            som_eliminado.play()
+                                            pecas_brancas.pop(peca_branca)
+                                            pecas_movidas_branco.pop(peca_branca)
+                                            brancas_posicao.pop(peca_branca)
+                                            if 'rei' in pecas_capturadas_preto:
+                                                game_over = True
+                                                vencedor = 'Preto'
+                                            break
 
-                                # Move a peça preta
-                                pretas_posicao[selecionado] = movimento
-                                som_movimento.play()
-
-                                # Verifica se capturou uma peça branca
-                                if movimento in brancas_posicao:
-                                    peca_branca = brancas_posicao.index(movimento)
-                                    pecas_capturadas_preto.append(pecas_brancas[peca_branca])
-                                    som_eliminado.play()
-
-                                    # Remove a peça branca capturada
-                                    pecas_brancas.pop(peca_branca)
-                                    pecas_movidas_branco.pop(peca_branca)
-                                    brancas_posicao.pop(peca_branca)
-
-                                    # Verifica se o rei foi capturado
-                                    if 'rei' in pecas_capturadas_preto:
-                                        game_over = True
-                                        vencedor = 'IA'
-
-                                # Finaliza o turno
-                                brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos',
-                                                                        brancas_posicao, pretas_posicao)
-                                turno = 0
-                                selecionado = 50
-                                movimentos_validos = []
-                                movimento_feito = True
-
+                                    if movimento:
+                                        pretas_posicao[pecas_pretas.index('rei')] = movimento
+                                        som_movimento.play()
+                                        movimento_feito = True
+                                    else:
+                                        movimento_feito = True
+                                else:
+                                    movimento_feito = True
+                                    break
 
                             else:
-                                # Se não houver movimentos válidos, tenta novamente
-                                continue
+                                pecas_tentadas = []
+                                while len(pecas_tentadas) < len(pretas_posicao):
+                                    selecionado = random.choice(range(len(pretas_posicao)))
+                                    if selecionado in pecas_tentadas:
+                                        continue
+                                    pecas_tentadas.append(selecionado)
+
+                                    movimentos_validos = check_movimentos_validos_ia(
+                                        pecas_pretas[selecionado], pretas_posicao[selecionado]
+                                    )
+
+                                    if movimentos_validos and movimentos_validos[0]:
+                                        captura_feita = False
+                                        for posicao in movimentos_validos[0]:
+                                            if posicao in brancas_posicao and pecas_brancas[
+                                                brancas_posicao.index(posicao)] == 'rei':
+                                                movimento = posicao
+                                                captura_feita = True
+                                                break
+
+                                        if not captura_feita:
+                                            for posicao in movimentos_validos[0]:
+                                                if posicao in brancas_posicao:
+                                                    movimento = posicao
+                                                    captura_feita = True
+                                                    break
+
+                                        if not captura_feita:
+                                            movimento = random.choice(movimentos_validos[0])
+
+                                        pretas_posicao[selecionado] = movimento
+                                        som_movimento.play()
+
+                                        if movimento in brancas_posicao:
+                                            peca_branca = brancas_posicao.index(movimento)
+                                            pecas_capturadas_preto.append(pecas_brancas[peca_branca])
+                                            som_eliminado.play()
+                                            pecas_brancas.pop(peca_branca)
+                                            pecas_movidas_branco.pop(peca_branca)
+                                            brancas_posicao.pop(peca_branca)
+
+                                            if 'rei' in pecas_capturadas_preto:
+                                                game_over = True
+                                                vencedor = 'IA'
+
+                                        movimento_feito = True
+                                        break
+
+                                if not movimento_feito:
+                                    movimento_feito = True
+
+                        brancas_opcoes = check_opcoes_movimento(pecas_brancas, brancas_posicao, 'brancos',
+                                                                brancas_posicao, pretas_posicao)
+                        pretas_opcoes = check_opcoes_movimento(pecas_pretas, pretas_posicao, 'pretos', brancas_posicao,
+                                                               pretas_posicao)
+                        turno = 0
+                        selecionado = 50
+                        movimentos_validos = []
+
+
     else:
         desenha_game_over()
         pygame.display.set_caption(f'O {vencedor} ganhou!!')
