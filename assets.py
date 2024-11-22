@@ -182,5 +182,6 @@ brancas_promocao = False
 pretas_promocao = False
 promocao_index = 50
 movimentos_castling = []
-cheque = False
+cheque_branco = False
+cheque_preto = False
 vencedor = 'null'
